@@ -36,11 +36,11 @@ function Check-Creds
          }
 }
 # Request access to a Teleport role
-function Req-Access
+<#function Req-Access
  {
 	  $request=$(tsh status | Select-String -Pattern 'Valid until')
 	   $request -replace '.+\s(.+)]','$1'
-}
+}#>
 # Teleport login
 function Get-Creds
  {
