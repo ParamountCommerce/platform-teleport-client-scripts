@@ -75,7 +75,8 @@ function Dbms {
 	{
 		$environment = $(tsh db ls --format=json | jq '.[].metadata.labels.Environment' | Sort-Object | Get-Unique | Out-GridView @GridArguments).Replace("`"","")
 		$db_name = $(tsh db ls  --format=json Environment=$environment | jq '.[].metadata.name' | Out-GridView @GridArguments).Replace("`"","")
-		tsh db login $db_name
+		$db_user = $($(tsh db ls --format=json | jq -r '[.[].users.allowed]' | Sort-Object | Get-Unique).Replace('[','.').Replace(']','').Replace('.','').Replace(',','') | Out-GridView @GridArguments).Replace("`"","")
+		tsh db login $db_name --db-user $db_user --db-name postgres
 #		$config = tsh db config $db_name | Out-String
 		$config = tsh db config $db_name --format=json
 #		$get_key_path = tsh db config $db_name | Select-String -Pattern 'Key:'
@@ -90,8 +91,7 @@ function Dbms {
 		Write-Host "Port :       11144"
 		Write-Host "Database :       postgres"
 		Write-Host "Authentication: Database Native"
-		Write-Host "Username : (one of below)"
-		Write-Host $(tsh db ls --format=json | jq -r '[.[].users.allowed]' | Sort-Object | Get-Unique).Replace('[','.').Replace(']','').Replace('.','').Replace(',','')
+		Write-Host ("Username : " + $(echo $config | jq -r '.user'))
 		Write-Host "SSL Configuration"
 		Write-Host ("CA Certificate :       " + $(echo $config | jq -r '.ca'))
 		Write-Host ("Client Certificate :       " + $( echo $config | jq -r '.cert'))
