@@ -102,8 +102,7 @@ tele_db() {
 		echo "Port : 11144"
 		echo "Database : postgres"
 		echo "Authentication: Database Native"
-		echo "Username : (one of below)"
-		echo $(tsh db ls --format=json | jq -r '[.[].users.allowed] | unique')
+		echo "Username : $(echo $connection_info | jq -r '.user')"
 		echo "SSL Configuration"
 		echo "CA Certificate : $(echo $connection_info | jq -r '.ca')"
 		echo "Client Certificate : $(echo $connection_info | jq -r '.cert')"
