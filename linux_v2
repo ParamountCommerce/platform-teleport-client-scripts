@@ -4,7 +4,7 @@ display_usage() {
 	echo ""
 	echo "This script must be run with ENV:  pc or mz  ... or  all  (all - for DevOps only)"
 	echo -e "\nUsage:\n\n$0 env"
-	echo -e "\nExample: $0 mz\n"
+	echo -e "\nExample: $0 pc\n"
 }
 
 # Check params
@@ -89,7 +89,10 @@ tele_db() {
 		echo $pstr
 		echo "Enter/Paste the DB name you'd like to connect from the list above:"
 		read db_name
-		tsh db login $db_name
+		echo "Select DB username : (one of below)"
+		echo $(tsh db ls --format=json | jq -r '[.[].users.allowed] | unique')
+		read db_user
+		tsh db login $db_name --db-user $db_user --db-name postgres
 		key=$(tsh db config $db_name --format=json | jq -r '.key')
 #		temp_key=$(tsh db config $db_name | grep 'Key:')
 #		key=${temp_key#"Key:"}
