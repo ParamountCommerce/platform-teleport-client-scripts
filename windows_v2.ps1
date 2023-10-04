@@ -44,6 +44,7 @@ function Check-Creds
 # Teleport login
 function Get-Creds
  {
+	Ver-Check
 	try
 	{
 		$authconnector = $authconnector | Out-GridView @GridArguments
@@ -137,6 +138,19 @@ function Spl
 		Write-Output $_
 			Exit
 		}
+	}
+}
+
+function Ver-Check
+{
+	$response_version_server = $( Invoke-RestMethod -Uri https://paramountcommerce.teleport.sh/webapi/ping -UseBasicParsing )
+	$server_teleport_version = $response_version_server.server_version
+	$local_teleport_version = $( tsh version --format=json | jq .version )  -replace '"', ''
+	if ($server_teleport_version -gt $local_teleport_version) {
+    	Write-Output "The current teleport cloud cluster version ($server_teleport_version) is older than the local client version $local_teleport_version."
+    	Write-Output "Your local client version needs to be ($server_teleport_version) or higher"
+		Write-Output "Download latest 'tsh client' for Windows from here: https://goteleport.com/download/#:~:text=Download%20Teleport,tsh%20client"
+		exit
 	}
 }
 
