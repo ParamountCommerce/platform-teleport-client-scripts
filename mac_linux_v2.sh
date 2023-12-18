@@ -127,6 +127,16 @@ tele_assume() {
 	tsh request show $requestid
 	tsh login --request-id=$requestid
 }
+tele_k8s() {
+  export KUBECONFIG=${HOME?}/teleport-kubeconfig.yaml
+  echo "Here is the list of clusters you have access to:"
+	tsh kube ls
+	echo $pstr
+	echo "Enter/Paste the Kubernetes Cluster name you'd like to connect from the list above:"
+	read k8s_cluster_name
+  tsh kube login $k8s_cluster_name
+}
+
 tele_migrate() {
 	  echo "NOTE! This script will automatically change the dbeaver connection configuration for HOST to localhost which is a requirement for Teleport TLS versions to work"
 		read -p "Continue (y/n)?" choice
@@ -160,8 +170,8 @@ tele_request_access() {
 	echo "Request submitted successfully"
 }
 
-PS3='Please enter your choice(1-Tsh Login, 2-ConnectDB, 3-AssumeRole, 4-RequestRoleAccess, 5-SessionLogout, 6-MigrateToV2Script, 7-Quit): '
-options=("Teleport Login" "Connect to DB" "Assume Role & Connect to DB" "Request Role Access" "Tsh Logout"  "Migrate To V2 Script" "Quit")
+PS3='Please enter your choice(1-Tsh Login, 2-ConnectDB, 3-AssumeRole, 4-RequestRoleAccess, 5-ConnectKubernetes, 6-SessionLogout, 7-MigrateToV2Script, 8-Quit): '
+options=("Teleport Login" "Connect to DB" "Assume Role & Connect to DB" "Request Role Access" "Connect to Kubernetes Cluster" "Tsh Logout" "Migrate To V2 Script" "Quit")
 select opt in "${options[@]}"; do
 	case $opt in
 	"Teleport Login")
@@ -185,6 +195,12 @@ select opt in "${options[@]}"; do
 	"Request Role Access")
 		echo "You chose: Request access to a Teleport role"
     tele_request_access
+		;;
+	"Connect to Kubernetes Cluster")
+		echo "You chose: Connecting to a Kubernetes Cluster"
+		tele_version_check
+		tele_login
+    tele_k8s
 		;;
 	"Tsh Logout")
 		echo "You chose: Logging out all teleport sessions"

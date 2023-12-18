@@ -12,7 +12,7 @@ if ($null -eq [Environment]::GetEnvironmentVariable("SHOW_TELEPORT_V2_RELEASE_NO
 
 $PSDefaultParameterValues['*:ErrorAction']='Stop'
 $authconnector = @('Okta-Admins(DEVOPS Only)', 'Okta-Mazooma', 'Okta-PCCA')
-$data = @('Teleport Login','Connect-to-RDS','Assume-Role & Connect-to-RDS','Teleport Logout','v2 Release Notes','Exit')
+$data = @('Teleport Login','Connect-to-RDS','Assume-Role & Connect-to-RDS','Connect-to-Kubernetes-Cluster','Teleport Logout','v2 Release Notes','Exit')
 $GridArguments = @{
     OutputMode = 'Single'
     Title      = 'Please select operation and click OK'
@@ -154,6 +154,13 @@ function Ver-Check
 	}
 }
 
+function K8s-Login
+{
+	set KUBECONFIG=${HOME}/teleport-kubeconfig.yaml
+	$clusters = $(tsh kube ls --format=json | jq '.[].kube_cluster_name' | Sort-Object | Get-Unique | Out-GridView @GridArguments).Replace("`"","")
+	tsh kube login $clusters
+}
+
 do {
 		$choice = $data | Out-GridView @GridArguments
 		switch ($choice)
@@ -169,6 +176,10 @@ do {
 			Check-Creds
 			Spl
 			Dbms
+		}
+		'Connect-to-Kubernetes-Cluster' {
+			Check-Creds
+			K8s-Login
 		}
 		'Teleport Logout' {
 			tsh logout
