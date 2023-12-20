@@ -146,6 +146,14 @@ function Ver-Check
 	$response_version_server = $( Invoke-RestMethod -Uri https://paramountcommerce.teleport.sh/webapi/ping -UseBasicParsing )
 	$server_teleport_version = $response_version_server.server_version
 	$local_teleport_version = $( tsh version --format=json | jq .version )  -replace '"', ''
+	$local_minor_version = $local_teleport_version.LastIndexOf('.')
+	if ($local_minor_version -ne -1) {
+    	$local_teleport_version = $local_teleport_version.Substring(0, $local_minor_version)
+	}
+	$server_minor_version = $server_teleport_version.LastIndexOf('.')
+	if ($server_minor_version -ne -1) {
+    	$server_teleport_version = $server_teleport_version.Substring(0, $server_minor_version)
+	}
 	if ($server_teleport_version -gt $local_teleport_version) {
     	Write-Output "The current teleport cloud cluster version ($server_teleport_version) is older than the local client version $local_teleport_version."
     	Write-Output "Your local client version needs to be ($server_teleport_version) or higher"
