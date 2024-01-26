@@ -128,12 +128,12 @@ tele_assume() {
 	tsh login --request-id=$requestid
 }
 tele_k8s() {
-  export KUBECONFIG=${HOME?}/teleport-kubeconfig.yaml
   echo "Here is the list of clusters you have access to:"
 	tsh kube ls
 	echo $pstr
 	echo "Enter/Paste the Kubernetes Cluster name you'd like to connect from the list above:"
 	read k8s_cluster_name
+	echo $k8s_cluster_name
   tsh kube login $k8s_cluster_name
 }
 
