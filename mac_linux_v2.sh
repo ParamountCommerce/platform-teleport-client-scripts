@@ -133,7 +133,6 @@ tele_k8s() {
 	echo $pstr
 	echo "Enter/Paste the Kubernetes Cluster name you'd like to connect from the list above:"
 	read k8s_cluster_name
-	echo $k8s_cluster_name
   tsh kube login $k8s_cluster_name
 }
 
