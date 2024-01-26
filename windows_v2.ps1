@@ -164,7 +164,6 @@ function Ver-Check
 
 function K8s-Login
 {
-	set KUBECONFIG=${HOME}/teleport-kubeconfig.yaml
 	$clusters = $(tsh kube ls --format=json | jq '.[].kube_cluster_name' | Sort-Object | Get-Unique | Out-GridView @GridArguments).Replace("`"","")
 	tsh kube login $clusters
 }

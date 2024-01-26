@@ -128,7 +128,6 @@ tele_assume() {
 	tsh login --request-id=$requestid
 }
 tele_k8s() {
-  export KUBECONFIG=${HOME?}/teleport-kubeconfig.yaml
   echo "Here is the list of clusters you have access to:"
 	tsh kube ls
 	echo $pstr
