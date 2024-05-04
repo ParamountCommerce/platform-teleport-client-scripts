@@ -115,11 +115,10 @@ tele_db() {
 		read db_user
 		tsh db login $db_name --db-user $db_user --db-name postgres
 		key=$(tsh db config $db_name --format=json | jq -r '.key')
-#		temp_key=$(tsh db config $db_name | grep 'Key:')
-#		key=${temp_key#"Key:"}
-#		echo $key
 		openssl pkcs8 -topk8 -inform PEM -outform DER -nocrypt -in $key -out $key.pk8
 		connection_info=$(tsh db config $db_name --format=json)
+
+		# Display connection details
 		echo "Hello! Use the below details to configure dBeaver:"
 		echo "DB Connection Name : $(echo $connection_info | jq -r '.name')"
 		echo "Host : localhost"
@@ -130,9 +129,17 @@ tele_db() {
 		echo "SSL Configuration"
 		echo "CA Certificate : $(echo $connection_info | jq -r '.ca')"
 		echo "Client Certificate : $(echo $connection_info | jq -r '.cert')"
-#		tsh db config $db_name
-#		echo "NOTE!"
 		echo "Client Private Key: $key.pk8"
+
+		# Generate JDBC connection string
+		jdbc_connection_string="jdbc:postgresql://localhost:11144/postgres?ssl=true&sslmode=verify-full&sslrootcert=$(echo $connection_info | jq -r '.ca')&sslcert=$(echo $connection_info | jq -r '.cert')&sslkey=$key.pk8&user=$(echo $connection_info | jq -r '.user')"
+		echo -e "JDBC Connection String: \e[32m $jdbc_connection_string\e[0m"
+
+		# Generate psql CLI connection command
+		psql_connection_command="psql 'postgresql://$(echo $connection_info | jq -r '.user')@localhost:11144/postgres?sslmode=verify-full&sslcert=$(echo $connection_info | jq -r '.cert')&sslkey=$key.pk8&sslrootcert=$(echo $connection_info | jq -r '.ca')'"
+		echo -e "CLI Connection Command: \e[32m $psql_connection_command\e[0m"
+	
+		# Start porxy
 		if [[ "$OSTYPE" == "darwin"* ]]; then
 			# macOS
 		  if ! lsof -Pi :11144 -sTCP:LISTEN -t >/dev/null ; then
