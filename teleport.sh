@@ -149,7 +149,7 @@ tele_db() {
 		  fi
 		elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			# Linux
-		  if ! ss -lnt | awk '$4 ~ /:11144$/ {exit 1}'; then
+		  if ss -lnt | awk '$4 ~ /:11144$/ {exit 1}'; then
 		    proxy="tsh proxy db $db_name --port 11144"
 		    $proxy >/dev/null 2>&1 & 
 				echo Proxy enabled on tcp/11144
